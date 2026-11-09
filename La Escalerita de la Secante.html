@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La Escalerita de la Secante</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#14123a;--bg2:#1d1a52;--grid:#201d5a;--ink:#f3efff;--mute:#a9a3d9;--cy:#38e8ff;--mg:#ff4fa3;--ye:#ffd23f;--gr:#5dff9a;--rd:#ff5c5c;--px:'Press Start 2P',ui-monospace,monospace;--tx:'VT323',ui-monospace,Menlo,monospace;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;padding:18px;max-width:1180px;margin-inline:auto;background-color:var(--bg);background-image:linear-gradient(var(--grid) 2px,transparent 2px),linear-gradient(90deg,var(--grid) 2px,transparent 2px);background-size:32px 32px;color:var(--ink);font:22px/1.25 var(--tx)}
+html{background:var(--bg)}
+header{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;justify-content:space-between;margin-bottom:22px}
+header div{flex:1 1 320px}
+h1{font:clamp(15px,3.2vw,24px)/1.5 var(--px);color:var(--ye);text-shadow:3px 3px 0 var(--mg);margin:0 0 10px}
+header p{margin:0 0 10px;color:var(--mute)}
+#plot{flex:0 1 360px;width:360px;max-width:100%;background:#0d0b2b;border:3px solid var(--ink);box-shadow:6px 6px 0 #000}
+h2{font:12px/1.6 var(--px);color:var(--cy);margin:0 0 10px}
+.card{background:var(--bg2);border:3px solid var(--ink);box-shadow:6px 6px 0 #000;padding:14px;margin-bottom:18px}
+.k-q{border-color:var(--cy)}.k-p{border-color:var(--mg)}.k-b{border-color:var(--ye)}.k-l{border-color:var(--gr)}
+button{font:11px/1.5 var(--px);padding:12px 14px;background:var(--ye);color:#1a1400;border:3px solid #000;box-shadow:0 4px 0 #8a6d00;cursor:pointer}
+button:active:not(:disabled){transform:translateY(4px);box-shadow:none}
+button:disabled{background:#4d4a85;color:#8f8bc4;box-shadow:none;cursor:default}
+button:focus-visible,input:focus-visible{outline:3px solid var(--cy);outline-offset:3px}
+#mute{background:var(--bg2);color:var(--ink);box-shadow:0 4px 0 #000;border-color:var(--mute);font-size:9px}
+.opt{display:block;width:100%;margin:8px 0;text-align:left;font:22px/1.2 var(--tx);background:#2a2770;color:var(--ink);border-color:var(--cy);box-shadow:0 4px 0 #000;padding:9px 12px}
+.opt:disabled{color:var(--ink)}.opt.good{background:var(--gr);color:#04210f;border-color:#000}.opt.bad{background:var(--rd);color:#2a0004;border-color:#000}
+input{width:100%;background:#0d0b2b;color:var(--ink);border:3px solid var(--cy);font:22px var(--tx);padding:6px 8px;margin-top:4px}
+#names{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px}
+#names label{border:3px solid;border-left-width:10px;padding:8px;background:#0d0b2b}
+.rules{padding-left:20px;margin:0 0 18px}.rules li{margin:4px 0}.rules b{color:var(--ye)}
+#setup{max-width:760px}
+code{display:block;background:#0d0b2b;color:var(--cy);padding:8px;overflow-x:auto;margin:8px 0;font:20px var(--tx)}
+#game{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr);gap:26px;align-items:start}
+@media(max-width:860px){#game{grid-template-columns:1fr}}
+.board{position:relative;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(5,1fr);aspect-ratio:6/5;outline:4px solid var(--ink);box-shadow:8px 8px 0 4px #000;margin:4px}
+.cell{position:relative;display:grid;place-items:center;font:clamp(22px,5vw,38px) var(--tx);box-shadow:inset 0 0 0 2px #000;background:var(--bg2)}
+.cell small{position:absolute;top:2px;left:5px;font:16px var(--tx);color:var(--mute)}
+.q{background:#12325e;color:var(--cy)}.p{background:#4a1450;color:var(--mg)}.b{background:#4a3c0c;color:var(--ye)}.l{background:#0f4a37;color:var(--gr)}.c{background:#5a1624;color:var(--rd)}.n{background:#1d1a52}
+.f{background:var(--ye);color:#1a1400;font:clamp(9px,1.8vw,13px) var(--px)}.f small{color:#5a4600}
+.board>svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.ic{width:46%;height:auto;aspect-ratio:1;overflow:visible}.cell em{position:absolute;bottom:3px;font:9px var(--px);font-style:normal}
+.lg{display:inline-flex;align-items:center;gap:6px;margin-right:16px;background:none!important}.lg .ic{width:22px}
+.tk{position:absolute;width:26px;height:26px;display:grid;place-items:center;font:10px var(--px);color:#000;border:3px solid #000;box-shadow:2px 2px 0 rgba(0,0,0,.6);transform:translate(-50%,-50%);transition:left .15s steps(3),top .15s steps(3);z-index:2}
+.tk.hop{animation:hop .17s steps(2)}.tk.on{animation:bob .7s steps(2) infinite}
+@keyframes hop{50%{transform:translate(-50%,-90%)}}@keyframes bob{50%{transform:translate(-50%,-70%)}}
+.pop{position:absolute;z-index:5;font:30px var(--tx);text-shadow:2px 2px 0 #000;transform:translate(-50%,-50%);animation:up 1s forwards;pointer-events:none}
+@keyframes up{to{transform:translate(-50%,-260%);opacity:0}}
+.shake{animation:sh .35s}@keyframes sh{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.legend{color:var(--mute);font-size:19px;margin:18px 4px 0}.legend b{color:var(--ink)}
+.dicebar{display:flex;align-items:center;gap:18px}#face{font-size:68px;line-height:1;display:inline-block}#face.spin{animation:rl .5s steps(6)}
+@keyframes rl{to{transform:rotate(360deg)}}
+table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--mute);font-weight:400}td,th{padding:3px 4px}
+tr.now{background:#2e2a80;color:var(--ye)}.dot{display:inline-block;width:12px;height:12px;margin-right:8px;border:2px solid #000}
+.fb{margin:10px 0}.ok{color:var(--gr)}.bad{color:var(--rd)}
+#log p{margin:3px 0;color:var(--mute)}#log p:first-child{color:var(--ink)}
+.cf{position:fixed;top:-12px;width:9px;height:9px;z-index:9;animation:fall 2.4s linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head>
+<body>
+<header><div><h1>La Escalerita de la Secante</h1><p>Juego de mesa para 2 a 4 jugadores en un mismo computador. Responde, calcula y llega primero a la casilla 30.</p><button id="mute">Sonido: sí</button></div>
+<svg id="plot" viewBox="0 0 360 130" role="img" aria-label="Gráfica animada: la recta secante se acerca a la raíz de x² − 2"></svg></header>
+<section id="setup" class="card"><h2>Jugadores</h2><div id="names"></div>
+<h2>Reglas</h2><ul class="rules"><li>Lanza el dado y avanza esa cantidad de casillas.</li><li><b>?</b> Pregunta: si aciertas avanzas 2; si fallas retrocedes 1.</li><li><b>ƒ</b> Problema: calcula con la fórmula; si aciertas avanzas 3.</li><li><b>★</b> Bonus: una pista de la docente y avanzas 2.</li><li><b>▲</b> Escalera: responde bien para subir. <b>▼</b> Resbalón: responde bien para no caer.</li></ul>
+<button id="start">Empezar partida</button><p id="err" class="fb bad"></p></section>
+<main id="game" hidden>
+<section><div class="board" id="board"></div><p class="legend" id="legend"></p></section>
+<aside><div class="card" id="turn" role="status" aria-live="polite"></div>
+<div class="card dicebar"><button id="dice">Lanzar dado</button><span id="face" aria-hidden="true">⚀</span></div>
+<div class="card" id="card" hidden></div>
+<div class="card"><h2>Marcador</h2><table id="sb"></table></div>
+<div class="card" id="log" aria-label="Historial"></div></aside></main>
+<script>
+const $=i=>document.getElementById(i),sleep=ms=>new Promise(r=>setTimeout(r,ms)),rnd=a=>a[Math.random()*a.length|0],shuf=a=>[...a].sort(()=>Math.random()-.5);
+const LAD={4:13,9:18,21:27},CHU={16:7,24:15,28:19},COL=['#38e8ff','#ffd23f','#ff4fa3','#5dff9a'],OFF=[[-13,-13],[13,-13],[-13,13],[13,13]],F='⚀⚁⚂⚃⚄⚅';
+// Iconos pixel-art 8x8
+const BM={q:'..####../.##..##./.##..##./....##../...##.../...##.../......../...##...',p:'...###../..##..../..##..../.####.../..##..../..##..../.##...../.##.....',b:'...##.../...##.../########/.######./..####../.######./.##..##./##....##',l:'##....##/##....##/########/##....##/##....##/########/##....##/##....##',c:'..####../..####../..####../########/.######./..####../...##.../........',f:'#####.../######../#######./######../#......./#......./#......./#.......'},G={},T={};
+for(const k in BM){const d=BM[k].split('/').flatMap((r,y)=>[...r].map((c,x)=>c=='#'?`M${x} ${y}h1v1h-1z`:'')).join('');G[k]=`<svg class="ic" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true"><path transform="translate(.5 .5)" fill="#000" opacity=".6" d="${d}"/><path fill="currentColor" d="${d}"/></svg>`}
+G.n='';G.f+='<em>META</em>';
+for(let n=1;n<=30;n++)T[n]='q';[6,11,14,23,26].forEach(n=>T[n]='p');[3,10,17,20,25].forEach(n=>T[n]='b');
+for(const a in LAD)T[a]='l';for(const a in CHU)T[a]='c';T[1]='n';T[30]='f';
+const QB=[
+['¿Qué busca el método de la secante?','Un valor de x donde f(x) = 0','El máximo de f(x)','El área bajo la curva','Aproxima raíces, es decir, soluciones de f(x) = 0.'],
+['¿Cuántos puntos iniciales necesita?','Dos','Uno','Tres','Necesita x₀ y x₁ para trazar la primera recta.'],
+['¿Qué reemplaza a la derivada de Newton-Raphson?','La pendiente entre dos puntos','El valor de f(x)','El punto medio','La pendiente de la secante aproxima a f′(x).'],
+['¿Cuál es la fórmula de la secante?','xₙ₊₁ = xₙ − f(xₙ)(xₙ − xₙ₋₁) / (f(xₙ) − f(xₙ₋₁))','xₙ₊₁ = xₙ − f(xₙ) / f′(xₙ)','xₙ₊₁ = (xₙ + xₙ₋₁) / 2','La segunda es Newton-Raphson y la tercera es el punto medio de la bisección.'],
+['Si f(xₙ) = f(xₙ₋₁), ¿qué pasa?','La recta es horizontal y hay división entre cero','Converge en un paso','El error se hace cero','Una recta horizontal nunca cruza el eje x.'],
+['¿Cuál es el orden de convergencia de la secante?','≈ 1.618','1 (lineal)','2 (cuadrático)','Es superlineal: más rápida que la bisección y algo más lenta que Newton.'],
+['A diferencia de la bisección, la secante…','No exige cambio de signo en los puntos iniciales','Siempre converge','Necesita la derivada','Por eso puede ser rápida, pero también puede fallar.'],
+['¿Qué criterio de parada es común?','|xₙ₊₁ − xₙ| menor que una tolerancia','Hacer un millón de iteraciones','Que f(x) sea negativa','Se detiene cuando el cambio entre iteraciones es muy pequeño.'],
+['En cada iteración, la secante usa…','Los dos últimos puntos','Solo el primer punto','Todos los puntos anteriores','Descarta el punto más viejo en cada paso.'],
+['¿Cuántas evaluaciones nuevas de f necesita por iteración?','Una','Dos','Ninguna','Reutiliza f(xₙ₋₁) y solo calcula f(xₙ₊₁).'],
+['Verdadero o falso: la secante siempre converge','Falso','Verdadero','No se puede saber','Con malos puntos iniciales puede divergir.'],
+['Geométricamente, xₙ₊₁ es…','El cruce de la secante con el eje x','El punto más alto de la curva','El cruce de la curva con el eje y','Es donde la recta por los dos últimos puntos corta el eje horizontal.']];
+const TIPS=['La secante no necesita derivadas: usa la pendiente entre dos puntos.','Elige puntos iniciales cercanos a la raíz y la convergencia será más rápida.','Revisa siempre que f(xₙ) − f(xₙ₋₁) no sea cero antes de dividir.','Con cada iteración, el número de cifras correctas crece casi un 62 %.'];
+const FN=[['x² − 2',x=>x*x-2],['x² − 3',x=>x*x-3],['x² − 5',x=>x*x-5],['x³ − 2',x=>x**3-2],['x² − 10',x=>x*x-10]],PR=[[1,2],[2,3],[1,3],[0,2]];
+const S=(fn,a,b)=>b-fn(b)*(b-a)/(fn(b)-fn(a));
+let PL=[],deck=[],mu=0,AC;
+// Sonido retro (ondas cuadradas)
+const bp=(f,d=.1,t=0)=>{if(mu)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=f;g.gain.value=.04;o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+t);o.stop(AC.currentTime+t+d)}catch(e){}};
+$('mute').onclick=()=>{mu=!mu;$('mute').textContent=mu?'Sonido: no':'Sonido: sí'};
+// Gráfica de cabecera: la secante converge a √2 en f(x) = x² − 2
+function plot(){const f=x=>x*x-2,X=x=>20+x*105,Y=y=>90-y*12,xs=[1,2];for(let i=0;i<5;i++)xs.push(S(f,xs[i],xs[i+1]));let d='';for(let x=0;x<=3.01;x+=.1)d+=(d?'L':'M')+X(x)+' '+Y(f(x));let k=0;
+ const draw=()=>{const a=xs[k],b=xs[k+1],c=xs[k+2],m=(f(b)-f(a))/(b-a),ln=x=>Y(f(a)+(x-a)*m);
+ $('plot').innerHTML=`<path d="${d}" fill="none" stroke="#38e8ff" stroke-width="3"/><path d="M20 90H350M20 4V126" stroke="#a9a3d9" stroke-width="2"/><line x1="${X(.2)}" y1="${ln(.2)}" x2="${X(3)}" y2="${ln(3)}" stroke="#ff4fa3" stroke-width="3"/><rect x="${X(a)-4}" y="${Y(f(a))-4}" width="8" height="8" fill="#ffd23f"/><rect x="${X(b)-4}" y="${Y(f(b))-4}" width="8" height="8" fill="#ffd23f"/><rect x="${X(c)-5}" y="85" width="10" height="10" fill="#5dff9a"/><text x="196" y="124" fill="#f3efff" font-family="VT323,monospace" font-size="20">x${k+2} = ${c.toFixed(4)}</text><text x="196" y="18" fill="#a9a3d9" font-family="VT323,monospace" font-size="18">f(x) = x² − 2</text>`;k=(k+1)%4};draw();setInterval(draw,1300)}
+const pos=n=>{const r=(n-1)/6|0,k=(n-1)%6;return[r%2?5-k:k,r]};
+$('names').innerHTML=[0,1,2,3].map(i=>`<label style="border-color:${COL[i]}">Jugador ${i+1}<input data-i="${i}" value="Jugador ${i+1}" maxlength="14"></label>`).join('');
+function build(){let h='';for(let n=1;n<=30;n++){const[c,r]=pos(n);h+=`<div class="cell ${T[n]}" style="grid-column:${c+1};grid-row:${5-r}"><small>${n}</small>${G[T[n]]}</div>`}
+ const ct=n=>{const[c,r]=pos(n);return[(c+.5)*100,(4-r+.5)*100]};let s='<svg viewBox="0 0 600 500" aria-hidden="true">';
+ for(const a in LAD){const[x1,y1]=ct(a),[x2,y2]=ct(LAD[a]),dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,nx=-uy*14,ny=ux*14,ln=(ax,ay,bx,by,w,c)=>`<line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="${c}" stroke-width="${w}" stroke-linecap="square"/>`;
+  s+=ln(x1+nx,y1+ny,x2+nx,y2+ny,14,'#000')+ln(x1-nx,y1-ny,x2-nx,y2-ny,14,'#000')+ln(x1+nx,y1+ny,x2+nx,y2+ny,8,'#5dff9a')+ln(x1-nx,y1-ny,x2-nx,y2-ny,8,'#5dff9a');
+  for(let t=24;t<L-10;t+=28){const cx=x1+ux*t,cy=y1+uy*t;s+=ln(cx+nx,cy+ny,cx-nx,cy-ny,11,'#000')+ln(cx+nx,cy+ny,cx-nx,cy-ny,5,'#ffd23f')}}
+ for(const a in CHU){const[x1,y1]=ct(a),[x2,y2]=ct(CHU[a]),d=`M${x1} ${y1}Q${(x1+x2)/2+45} ${(y1+y2)/2} ${x2} ${y2}`;s+=`<path d="${d}" fill="none" stroke="#000" stroke-width="17" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#ff5c5c" stroke-width="11" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="2 14" stroke-linecap="round" opacity=".8"/><circle cx="${x1}" cy="${y1}" r="12" fill="#ff5c5c" stroke="#000" stroke-width="4"/><circle cx="${x2}" cy="${y2}" r="7" fill="#000"/>`}
+ $('board').innerHTML=h+s+'</svg>'+PL.map(p=>`<i class="tk" id="t${p.k}" style="background:${COL[p.i]}">${p.i+1}</i>`).join('');PL.forEach(place)}
+function place(p){const[c,r]=pos(p.pos),e=$('t'+p.k);e.style.left=(c+.5)/6*100+'%';e.style.top=(4-r+.5)/5*100+'%';e.style.marginLeft=OFF[p.k][0]+'px';e.style.marginTop=OFF[p.k][1]+'px';e.classList.remove('hop');void e.offsetWidth;e.classList.add('hop')}
+function pop(p,t,c){const[cc,r]=pos(p.pos),e=document.createElement('b');e.className='pop';e.textContent=t;e.style.cssText=`left:${(cc+.5)/6*100}%;top:${(4-r+.5)/5*100}%;color:${c}`;$('board').appendChild(e);setTimeout(()=>e.remove(),1000)}
+const res=(p,ok,t)=>{bp(ok?880:150,.15);pop(p,t,ok?'#5dff9a':'#ff5c5c')};
+const log=t=>{const l=$('log');l.insertAdjacentHTML('afterbegin',`<p>${t}</p>`);while(l.children.length>6)l.lastChild.remove()};
+function sb(cur){$('sb').innerHTML='<tr><th>Jugador</th><th>Casilla</th><th>Aciertos</th></tr>'+PL.map((p,k)=>`<tr class="${k===cur?'now':''}"><td><i class="dot" style="background:${COL[p.i]}"></i>${p.name}</td><td>${p.pos}</td><td>${p.ok}</td></tr>`).join('');PL.forEach((p,k)=>$('t'+p.k).classList.toggle('on',k===cur))}
+function ask(kind){return new Promise(res=>{const c=$('card');c.hidden=false;c.className='card k-'+kind;c.scrollIntoView({block:'nearest',behavior:'smooth'});
+ const end=(t,g)=>{bp(g?660:140,.12);if(g)bp(990,.15,.12);c.insertAdjacentHTML('beforeend',`<p class="fb ${g?'ok':'bad'}">${t}</p><button id="go">Continuar</button>`);$('go').onclick=()=>{c.hidden=true;res(g)};$('go').focus()};
+ if(kind=='p'){const[nm,fn]=rnd(FN),[a,b]=rnd(PR),two=Math.random()<.3,x2=S(fn,a,b),x3=S(fn,b,x2),ans=two?x3:x2,r=n=>+n.toFixed(3);
+  c.innerHTML=`<h2>Problema ƒ</h2><p>f(x) = ${nm}, x₀ = ${a}, x₁ = ${b}. Calcula <b>${two?'x₃ (dos iteraciones)':'x₂'}</b> con 2 decimales.</p><code>xₙ₊₁ = xₙ − f(xₙ)(xₙ − xₙ₋₁) / (f(xₙ) − f(xₙ₋₁))</code><label for="ans">Tu respuesta</label><input id="ans" inputmode="decimal"><p><button id="ok">Comprobar</button></p>`;
+  const chk=()=>{const v=parseFloat($('ans').value.replace(',','.'));if(isNaN(v))return;$('ok').disabled=$('ans').disabled=true;const g=Math.abs(v-ans)<.02;
+   end(`${g?'¡Correcto! ':'No es exacto. '}x₂ = ${b} − (${r(fn(b))})(${r(b-a)}) / (${r(fn(b)-fn(a))}) = ${r(x2)}${two?`; luego x₃ = ${r(x3)}`:''}.`,g)};
+  $('ok').onclick=chk;$('ans').onkeydown=e=>{if(e.key=='Enter')chk()};$('ans').focus()}
+ else{if(!deck.length)deck=shuf(QB);const q=deck.pop(),os=shuf([q[1],q[2],q[3]]);c.innerHTML=`<h2>Pregunta ?</h2><p>${q[0]}</p>`+os.map(o=>`<button class="opt">${o}</button>`).join('');
+  c.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const g=b.textContent==q[1];c.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(x.textContent==q[1])x.classList.add('good')});if(!g)b.classList.add('bad');end(q[4],g)})}})}
+function tip(){return new Promise(res=>{const c=$('card');c.hidden=false;c.className='card k-b';c.scrollIntoView({block:'nearest',behavior:'smooth'});c.innerHTML=`<h2>★ Bonus</h2><p>${rnd(TIPS)}</p><button id="go">Avanzar 2 casillas</button>`;$('go').onclick=()=>{c.hidden=true;res()};$('go').focus()})}
+function roll(){return new Promise(res=>{const d=$('dice');d.disabled=false;d.onclick=async()=>{d.disabled=true;$('face').classList.add('spin');let v;for(let k=0;k<9;k++){v=1+Math.random()*6|0;$('face').textContent=F[v-1];bp(300+k*40,.05);await sleep(70)}$('face').classList.remove('spin');res(v)};d.focus()})}
+async function move(p,t){t=Math.max(1,Math.min(30,t));while(p.pos!=t){p.pos+=p.pos<t?1:-1;place(p);bp(520,.04);await sleep(170)}}
+async function jump(p,t){p.pos=t;place(p);await sleep(800)}
+async function land(p){const n=p.pos,t=T[n];
+ if(t=='b'){await tip();res(p,1,'+2');log(`${p.name} gana el bonus y avanza 2.`);return move(p,n+2)}
+ if(t=='n'||t=='f')return;
+ const ok=await ask(t=='p'?'p':t=='l'?'l':'q');if(ok)p.ok++;
+ if(t=='q'){res(p,ok,ok?'+2':'−1');log(`${p.name} ${ok?'acertó y avanza 2':'falló y retrocede 1'}.`);return move(p,ok?n+2:n-1)}
+ if(t=='p'){res(p,ok,ok?'+3':'0');log(`${p.name} ${ok?'resolvió el problema y avanza 3':'no resolvió el problema y se queda'}.`);return ok?move(p,n+3):0}
+ if(t=='l'){res(p,ok,ok?'▲ sube':'sin subir');log(`${p.name} ${ok?'sube por la escalera':'no logra subir'}.`);return ok?jump(p,LAD[n]):0}
+ res(p,ok,ok?'salvado':'▼ cae');log(`${p.name} ${ok?'evita el resbalón':'resbala hacia abajo'}.`);
+ if(ok)return;const b=$('board');b.classList.add('shake');setTimeout(()=>b.classList.remove('shake'),400);return jump(p,CHU[n])}
+function finish(w){const c=$('card');c.hidden=false;c.className='card k-b';$('dice').disabled=true;$('turn').innerHTML=`<h2>¡Ganó ${w.name}!</h2><p>Llegó a la meta.</p>`;
+ [523,659,784,1047].forEach((f,i)=>bp(f,.18,i*.15));
+ for(let i=0;i<60;i++){const d=document.createElement('i');d.className='cf';d.style.cssText=`left:${Math.random()*100}vw;background:${COL[i%4]};animation-delay:${Math.random()}s`;document.body.appendChild(d);setTimeout(()=>d.remove(),3600)}
+ c.innerHTML=`<h2>Resultados</h2><table><tr><th>Jugador</th><th>Casilla</th><th>Aciertos</th></tr>${PL.map(p=>`<tr><td>${p.name}</td><td>${p.pos}</td><td>${p.ok}</td></tr>`).join('')}</table><p><button id="again">Jugar otra vez</button></p>`;
+ $('again').onclick=()=>{c.hidden=true;$('game').hidden=true;$('setup').hidden=false;$('log').innerHTML=''}}
+async function play(){let cur=0;for(;;){const p=PL[cur];sb(cur);$('turn').innerHTML=`<h2>Turno de <span style="color:${COL[p.i]}">${p.name}</span></h2><p>Está en la casilla ${p.pos}. ¡Lanza el dado!</p>`;
+ const v=await roll();log(`${p.name} sacó ${v}.`);await move(p,p.pos+v);if(p.pos<30)await land(p);sb(cur);if(p.pos>=30)return finish(p);cur=(cur+1)%PL.length}}
+$('start').onclick=()=>{PL=[...document.querySelectorAll('#names input')].map(e=>({i:+e.dataset.i,name:e.value.replace(/[<>&]/g,'').trim()})).filter(p=>p.name).map((p,k)=>({...p,k,pos:1,ok:0}));
+ if(PL.length<2)return $('err').textContent='Escribe al menos dos nombres.';$('err').textContent='';$('setup').hidden=true;$('game').hidden=false;build();play()};
+plot();$('legend').innerHTML=[['q','pregunta'],['p','problema'],['b','bonus'],['l','escalera'],['c','resbalón']].map(([k,t])=>`<span class="lg ${k}">${G[k]}${t}</span>`).join('');
+</script>
+</body></html>
